@@ -1,7 +1,22 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 const Navbar = () => {
+  const { auth, setAuth } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setAuth({
+      token: null,
+      isAuthenticated: false,
+      loading: false,
+      user: null,
+    });
+    navigate('/login');
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container-fluid">
@@ -17,15 +32,25 @@ const Navbar = () => {
             <li className="nav-item">
               <Link className="nav-link" to="/leaderboard">Leaderboard</Link>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/profile">Profile</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/login">Login</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/register">Register</Link>
-            </li>
+            {auth.isAuthenticated ? (
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/profile">Profile</Link>
+                </li>
+                <li className="nav-item">
+                  <button className="btn btn-link nav-link" onClick={handleLogout}>Logout</button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/login">Login</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/register">Register</Link>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>
