@@ -26,6 +26,10 @@ app.get('/', (req, res) => {
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
+// Import and use Quiz Routes
+const quizRoutes = require('./routes/quizzes');
+app.use('/api/quizzes', quizRoutes);
+
 // Start the Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
