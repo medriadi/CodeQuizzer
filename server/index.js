@@ -30,6 +30,10 @@ app.use('/api/auth', authRoutes);
 const quizRoutes = require('./routes/quizzes');
 app.use('/api/quizzes', quizRoutes);
 
+// Import and use Leaderboard Routes
+const leaderboardRoutes = require('./routes/leaderboard');
+app.use('/api/leaderboard', leaderboardRoutes);
+
 // Start the Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
