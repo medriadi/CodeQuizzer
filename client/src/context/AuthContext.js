@@ -47,8 +47,47 @@ const AuthProvider = ({ children }) => {
     // eslint-disable-next-line
   }, []);
 
+  // Login function
+  const login = async (email, password) => {
+    try {
+      const res = await axios.post('/api/auth/login', { email, password });
+      localStorage.setItem('token', res.data.token);
+      setAuth({
+        ...auth,
+        token: res.data.token,
+        isAuthenticated: true,
+        loading: false,
+      });
+      // Load user data
+      const userRes = await axios.get('/api/auth/user', {
+        headers: { 'x-auth-token': res.data.token },
+      });
+      setAuth({
+        ...auth,
+        token: res.data.token,
+        isAuthenticated: true,
+        loading: false,
+        user: userRes.data,
+      });
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
+  // Logout function
+  const logout = () => {
+    localStorage.removeItem('token');
+    setAuth({
+      token: null,
+      isAuthenticated: false,
+      loading: false,
+      user: null,
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ auth, setAuth }}>
+    <AuthContext.Provider value={{ auth, login, logout, setAuth }}>
       {children}
     </AuthContext.Provider>
   );
