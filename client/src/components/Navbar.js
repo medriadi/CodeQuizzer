@@ -3,17 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { auth, setAuth } = useContext(AuthContext);
+  const { auth, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setAuth({
-      token: null,
-      isAuthenticated: false,
-      loading: false,
-      user: null,
-    });
+    logout();
     navigate('/login');
   };
 
@@ -27,13 +21,13 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <Link className="nav-link" to="/quiz">Quiz</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/leaderboard">Leaderboard</Link>
+              <Link className="nav-link" to="/quizzes">Quizzes</Link>
             </li>
             {auth.isAuthenticated ? (
               <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/leaderboard">Leaderboard</Link>
+                </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/profile">Profile</Link>
                 </li>
