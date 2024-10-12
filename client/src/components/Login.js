@@ -1,23 +1,22 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('/api/auth/login', { email, password });
-      // Save token to localStorage or cookies
-      localStorage.setItem('token', res.data.token);
+      await login(email, password);
       // Redirect to home or dashboard
       navigate('/');
     } catch (err) {
-      setError(err.response.data.msg || 'Login failed');
+      setError(err.response?.data?.msg || 'Login failed');
     }
   };
 
