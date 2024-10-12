@@ -15,13 +15,14 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  scores: [
+    {
+      type: Number,
+    },
+  ],
   date: {
     type: Date,
     default: Date.now,
-  },
-  scores: {
-    type: [Number],
-    default: [],
   },
 });
 
