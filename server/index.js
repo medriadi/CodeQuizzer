@@ -13,7 +13,8 @@ app.use(express.json());
 app.use(cors());
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
+mongoose
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB connected successfully'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
@@ -33,6 +34,10 @@ app.use('/api/quizzes', quizRoutes);
 // Import and use Leaderboard Routes
 const leaderboardRoutes = require('./routes/leaderboard');
 app.use('/api/leaderboard', leaderboardRoutes);
+
+// Import and use Profile Routes
+const profileRoutes = require('./routes/profile');
+app.use('/api/profile', profileRoutes);
 
 // Start the Server
 const PORT = process.env.PORT || 5000;
