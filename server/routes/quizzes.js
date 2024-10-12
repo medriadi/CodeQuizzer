@@ -79,9 +79,13 @@ router.post('/:id/submit', authMiddleware, async (req, res) => {
       }
     });
 
-    // Update user's scores
+    // Update user's quiz attempts
     const user = await User.findById(req.user.id);
-    user.scores.push(score);
+    user.quizAttempts.push({
+      quizId: quiz._id,
+      score,
+      total: quiz.questions.length,
+    });
     await user.save();
 
     res.json({ score, total: quiz.questions.length, results });
@@ -90,5 +94,4 @@ router.post('/:id/submit', authMiddleware, async (req, res) => {
     res.status(500).send('Server error');
   }
 });
-
 module.exports = router;
