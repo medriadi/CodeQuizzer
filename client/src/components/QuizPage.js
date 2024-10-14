@@ -12,6 +12,7 @@ const QuizPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -42,6 +43,7 @@ const QuizPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
     const formattedAnswers = Object.keys(answers).map((questionId) => ({
       questionId,
@@ -64,14 +66,14 @@ const QuizPage = () => {
     }
   };
 
-  if (loading) return <div>Loading quiz...</div>;
-  if (error) return <div className="alert alert-danger">{error}</div>;
+  if (loading) return <div className="text-center mt-4"><div className="spinner-border" role="status"><span className="visually-hidden">Loading...</span></div></div>;
+  if (error) return <div className="alert alert-danger mt-4">{error}</div>;
 
   if (result) {
     return (
       <div>
-        <h2>Quiz Results</h2>
-        <p>Your Score: {result.score} / {result.total}</p>
+        <h2 className="text-center my-4">Quiz Results</h2>
+        <p className="text-center">Your Score: {result.score} / {result.total}</p>
         <hr />
         {result.results.map((resItem, index) => (
           <div key={index} className="mb-3">
@@ -82,18 +84,23 @@ const QuizPage = () => {
             <hr />
           </div>
         ))}
-        <button className="btn btn-primary" onClick={() => navigate('/quizzes')}>Back to Quizzes</button>
+        <button className="btn btn-primary w-100 mt-3" onClick={() => navigate('/quizzes')}>Back to Quizzes</button>
       </div>
     );
   }
 
   return (
     <div>
-      <h2>{quiz.title}</h2>
-      <p>{quiz.description}</p>
+      <h2 className="text-center my-4">{quiz.title}</h2>
+      <p className="text-center">{quiz.description}</p>
+      <div className="progress mb-4">
+        <div className="progress-bar" role="progressbar" style={{ width: `${((currentQuestionIndex + 1) / quiz.questions.length) * 100}%` }}>
+          Question {currentQuestionIndex + 1} of {quiz.questions.length}
+        </div>
+      </div>
       <form onSubmit={handleSubmit}>
         {quiz.questions.map((question, index) => (
-          <div key={question._id} className="mb-4">
+          <div key={question._id} className={`mb-4 ${index === currentQuestionIndex ? '' : 'd-none'}`}>
             <h5>{index + 1}. {question.questionText}</h5>
             {question.options.map((option, idx) => (
               <div className="form-check" key={idx}>
@@ -106,14 +113,28 @@ const QuizPage = () => {
                   onChange={() => handleChange(question._id, option)}
                   required
                 />
-                <label className="form-check-label" htmlFor={`question_${question._id}_option_${idx}`}>
-                  {option}
-                </label>
+                <label className="form-check-label" htmlFor={`question_${question._id}_option_${idx}`}>{option}</label>
               </div>
             ))}
           </div>
         ))}
-        <button type="submit" className="btn btn-success">Submit Quiz</button>
+        <div className="d-flex justify-content-between">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            disabled={currentQuestionIndex === 0}
+            onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
+          >Previous</button>
+          {currentQuestionIndex < quiz.questions.length - 1 ? (
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
+            >Next</button>
+          ) : (
+            <button type="submit" className="btn btn-success">Submit Quiz</button>
+          )}
+        </div>
       </form>
     </div>
   );
