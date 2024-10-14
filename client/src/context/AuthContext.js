@@ -44,8 +44,7 @@ const AuthProvider = ({ children }) => {
     };
 
     loadUser();
-    // eslint-disable-next-line
-  }, []);
+  }, [auth]);
 
   // Login function
   const login = async (email, password) => {
