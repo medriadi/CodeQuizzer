@@ -5,6 +5,7 @@ const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -14,38 +15,41 @@ const Leaderboard = () => {
         setLoading(false);
       } catch (err) {
         console.error(err);
-        setError('Failed to fetch leaderboard');
-        setLoading(false);
+        if (retryCount < 3) {
+          setRetryCount(retryCount + 1);
+        } else {
+          setError('Failed to fetch leaderboard');
+          setLoading(false);
+        }
       }
     };
 
-    fetchLeaderboard();
-  }, []);
+    const timeoutId = setTimeout(fetchLeaderboard, 1000);
 
-  if (loading) return <div>Loading leaderboard...</div>;
-  if (error) return <div className="alert alert-danger">{error}</div>;
+    return () => clearTimeout(timeoutId);
+  }, [retryCount]);
+
+  if (loading) return <div className="text-center mt-4"><div className="spinner-border" role="status"><span className="visually-hidden">Loading...</span></div></div>;
+  if (error) return <div className="alert alert-danger mt-4">{error}</div>;
 
   return (
     <div>
-      <h2>Leaderboard</h2>
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Username</th>
-            <th>Highest Score</th>
-          </tr>
-        </thead>
-        <tbody>
-          {leaderboard.map((user, index) => (
-            <tr key={index}>
-              <td>{index + 1}</td>
-              <td>{user.username}</td>
-              <td>{user.highestScore}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <h2 className="text-center my-4">Leaderboard</h2>
+      <div className="row">
+        {leaderboard.map((user, index) => (
+          <div className="col-md-4 mb-3" key={index}>
+            <div className="card h-100 shadow-sm">
+              <div className="card-body">
+                <h5 className="card-title">
+                  {index + 1}. {user.username}
+                  <span className="badge bg-secondary float-end">Rank {index + 1}</span>
+                </h5>
+                <p className="card-text">Highest Score: {user.highestScore}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
