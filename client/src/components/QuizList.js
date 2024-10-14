@@ -23,22 +23,23 @@ const QuizList = () => {
     fetchQuizzes();
   }, []);
 
-  if (loading) return <div>Loading quizzes...</div>;
-  if (error) return <div className="alert alert-danger">{error}</div>;
+  if (loading) return <div className="text-center mt-4"><div className="spinner-border" role="status"><span className="visually-hidden">Loading...</span></div></div>;
+  if (error) return <div className="alert alert-danger mt-4">{error}</div>;
 
   return (
     <div>
-      <h2>Available Quizzes</h2>
-      <div className="list-group">
+      <h2 className="text-center my-4">Available Quizzes</h2>
+      <div className="row">
         {quizzes.map((quiz) => (
-          <Link
-            key={quiz._id}
-            to={`/quizzes/${quiz._id}`}
-            className="list-group-item list-group-item-action"
-          >
-            <h5>{quiz.title}</h5>
-            <p>{quiz.description}</p>
-          </Link>
+          <div className="col-md-4 mb-4" key={quiz._id}>
+            <div className="card h-100 shadow-sm">
+              <div className="card-body">
+                <h5 className="card-title">{quiz.title}</h5>
+                <p className="card-text">{quiz.description}</p>
+                <Link to={`/quizzes/${quiz._id}`} className="btn btn-primary">Start Quiz</Link>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </div>
