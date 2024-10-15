@@ -24,12 +24,17 @@ const Leaderboard = () => {
       }
     };
 
-    const timeoutId = setTimeout(fetchLeaderboard, 1000);
-
-    return () => clearTimeout(timeoutId);
+    fetchLeaderboard();
   }, [retryCount]);
 
-  if (loading) return <div className="text-center mt-4"><div className="spinner-border" role="status"><span className="visually-hidden">Loading...</span></div></div>;
+  if (loading)
+    return (
+      <div className="text-center mt-4">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
   if (error) return <div className="alert alert-danger mt-4">{error}</div>;
 
   return (
@@ -37,14 +42,19 @@ const Leaderboard = () => {
       <h2 className="text-center my-4">Leaderboard</h2>
       <div className="row">
         {leaderboard.map((user, index) => (
-          <div className="col-md-4 mb-3" key={index}>
+          <div className="col-md-4 mb-3" key={user.username}>
             <div className="card h-100 shadow-sm">
               <div className="card-body">
                 <h5 className="card-title">
                   {index + 1}. {user.username}
-                  <span className="badge bg-secondary float-end">Rank {index + 1}</span>
+                  <span className="badge bg-secondary float-end">
+                    Rank {index + 1}
+                  </span>
                 </h5>
-                <p className="card-text">Highest Score: {user.highestScore}</p>
+                <p className="card-text">
+                  Average Score: {user.averagePercentage}%
+                </p>
+                <p className="card-text">Quizzes Taken: {user.numQuizzes}</p>
               </div>
             </div>
           </div>
