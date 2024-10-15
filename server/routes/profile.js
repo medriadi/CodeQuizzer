@@ -13,10 +13,14 @@ const User = require('../models/User');
  */
 router.get('/', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id)
+      .select('-password')
+      .lean();
+
     if (!user) {
       return res.status(404).json({ msg: 'User not found' });
     }
+
     res.json(user);
   } catch (err) {
     console.error(err.message);
@@ -34,14 +38,19 @@ router.put(
   [
     authMiddleware,
     [
-      check('username', 'Username is required').not().isEmpty(),
-      check('email', 'Please include a valid email').isEmail(),
-      check('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 }),
+      check('username', 'Username is required and must be alphanumeric')
+        .optional()
+        .isAlphanumeric(),
+      check('email', 'Please include a valid email').optional().isEmail(),
+      check('password', 'Password must be 6 or more characters')
+        .optional()
+        .isLength({ min: 6 }),
     ],
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Return the array of validation errors
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -54,21 +63,30 @@ router.put(
         return res.status(404).json({ msg: 'User not found' });
       }
 
+      // Check if username is being updated and already exists
+      if (username && username !== user.username) {
+        let existingUser = await User.findOne({ username });
+        if (existingUser) {
+          return res.status(400).json({ msg: 'Username already in use' });
+        }
+        user.username = username;
+      }
+
       // Check if email is being updated and already exists
-      if (email !== user.email) {
+      if (email && email !== user.email) {
         let existingUser = await User.findOne({ email });
         if (existingUser) {
           return res.status(400).json({ msg: 'Email already in use' });
         }
+        user.email = email;
+        // Optionally, set a flag to verify new email
       }
 
-      // Update user fields
-      user.username = username;
-      user.email = email;
-
-      // Hash new password
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
+      // Update password if provided
+      if (password) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+      }
 
       await user.save();
 
