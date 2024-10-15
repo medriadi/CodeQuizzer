@@ -4,28 +4,38 @@ import axios from 'axios';
 export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
+  const initialToken = localStorage.getItem('token');
   const [auth, setAuth] = useState({
-    token: localStorage.getItem('token'),
+    token: initialToken,
     isAuthenticated: null,
     loading: true,
     user: null,
   });
 
   useEffect(() => {
+    const setAxiosAuthToken = (token) => {
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      } else {
+        delete axios.defaults.headers.common['Authorization'];
+      }
+    };
+
     const loadUser = async () => {
       if (auth.token) {
+        setAxiosAuthToken(auth.token);
         try {
-          const res = await axios.get('/api/auth/user', {
-            headers: { 'x-auth-token': auth.token },
-          });
-          setAuth({
-            ...auth,
+          const res = await axios.get('/api/auth/user');
+          setAuth((prevState) => ({
+            ...prevState,
             isAuthenticated: true,
             loading: false,
             user: res.data,
-          });
+          }));
         } catch (err) {
           console.error(err);
+          localStorage.removeItem('token');
+          setAxiosAuthToken(null);
           setAuth({
             token: null,
             isAuthenticated: false,
@@ -44,30 +54,26 @@ const AuthProvider = ({ children }) => {
     };
 
     loadUser();
-  }, [auth]);
+  }, [auth.token]);
 
   // Login function
   const login = async (email, password) => {
     try {
       const res = await axios.post('/api/auth/login', { email, password });
       localStorage.setItem('token', res.data.token);
-      setAuth({
-        ...auth,
+      setAuth((prevState) => ({
+        ...prevState,
         token: res.data.token,
         isAuthenticated: true,
         loading: false,
-      });
+      }));
+      axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
       // Load user data
-      const userRes = await axios.get('/api/auth/user', {
-        headers: { 'x-auth-token': res.data.token },
-      });
-      setAuth({
-        ...auth,
-        token: res.data.token,
-        isAuthenticated: true,
-        loading: false,
+      const userRes = await axios.get('/api/auth/user');
+      setAuth((prevState) => ({
+        ...prevState,
         user: userRes.data,
-      });
+      }));
     } catch (err) {
       console.error(err);
       throw err;
@@ -77,6 +83,7 @@ const AuthProvider = ({ children }) => {
   // Logout function
   const logout = () => {
     localStorage.removeItem('token');
+    delete axios.defaults.headers.common['Authorization'];
     setAuth({
       token: null,
       isAuthenticated: false,
