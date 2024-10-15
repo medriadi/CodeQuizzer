@@ -2,15 +2,32 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
+const morgan = require('morgan');
 
 // Load environment variables from .env file
 dotenv.config();
 
 const app = express();
 
+// Set 'trust proxy' to trust the first proxy
+app.set('trust proxy', 1);
+
 // Middleware
-app.use(express.json());
+app.use(express.json()); // Parses incoming requests with JSON payloads
 app.use(cors());
+app.use(helmet());
+app.use(mongoSanitize());
+app.use(morgan('dev'));
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
 
 // Connect to MongoDB
 mongoose
@@ -38,6 +55,26 @@ app.use('/api/leaderboard', leaderboardRoutes);
 // Import and use Profile Routes
 const profileRoutes = require('./routes/profile');
 app.use('/api/profile', profileRoutes);
+
+// Error Handling Middleware for JSON Parsing Errors
+app.use((err, req, res, next) => {
+  if (
+    err instanceof SyntaxError &&
+    err.status === 400 &&
+    'body' in err &&
+    err.type === 'entity.parse.failed'
+  ) {
+    console.error('Bad JSON:', err.message);
+    return res.status(400).json({ msg: 'Invalid JSON payload' });
+  }
+  next(err);
+});
+
+// Centralized Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled Error:', err.stack);
+  res.status(500).send('Something broke!');
+});
 
 // Start the Server
 const PORT = process.env.PORT || 5000;
