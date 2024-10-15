@@ -4,24 +4,40 @@ const User = require('../models/User');
 
 /**
  * @route   GET /api/leaderboard
- * @desc    Get top 10 users with highest scores
+ * @desc    Get top 10 users with highest average percentage scores
  * @access  Public
  */
 router.get('/', async (req, res) => {
   try {
-    const topUsers = await User.find({ scores: { $exists: true, $ne: [] } })
-      .select('username scores')
+    // Fetch users who have at least one quiz attempt
+    const users = await User.find({ 'quizAttempts.0': { $exists: true } })
+      .select('username quizAttempts')
       .lean();
 
-    // Map users to include their highest score
-    const usersWithHighestScores = topUsers.map((user) => ({
-      username: user.username,
-      highestScore: Math.max(...user.scores),
-    }));
+    // Calculate average percentage and number of quizzes taken for each user
+    const usersWithStats = users.map((user) => {
+      const totalScore = user.quizAttempts.reduce((sum, attempt) => {
+        return sum + attempt.score;
+      }, 0);
 
-    // Sort users by highestScore in descending order and get top 10
-    const sortedTopUsers = usersWithHighestScores
-      .sort((a, b) => b.highestScore - a.highestScore)
+      const totalPossible = user.quizAttempts.reduce((sum, attempt) => {
+        return sum + attempt.total;
+      }, 0);
+
+      const numQuizzes = user.quizAttempts.length;
+      const averagePercentage =
+        totalPossible > 0 ? (totalScore / totalPossible) * 100 : 0;
+
+      return {
+        username: user.username,
+        averagePercentage: averagePercentage.toFixed(2),
+        numQuizzes: numQuizzes,
+      };
+    });
+
+    // Sort users by average percentage in descending order and take top 10
+    const sortedTopUsers = usersWithStats
+      .sort((a, b) => b.averagePercentage - a.averagePercentage)
       .slice(0, 10);
 
     res.json(sortedTopUsers);
