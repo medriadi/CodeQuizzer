@@ -877,6 +877,14 @@ const seedDatabase = async () => {
       const questionIds = [];
 
       for (const questionData of questions) {
+        // Ensure correctAnswer is among the options
+        if (!questionData.options.includes(questionData.correctAnswer)) {
+          console.error(
+            `Correct answer "${questionData.correctAnswer}" not in options for question "${questionData.questionText}"`
+          );
+          continue; // Skip this question
+        }
+
         const question = new Question(questionData);
         await question.save();
         questionIds.push(question._id);
