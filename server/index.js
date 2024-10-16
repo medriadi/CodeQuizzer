@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
+const cors = require('cors'); // Ensure 'cors' is required only once
 const dotenv = require('dotenv');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -12,15 +12,21 @@ dotenv.config();
 
 const app = express();
 
-// Set 'trust proxy' to trust the first proxy
+// Set 'trust proxy' to trust the first proxy (useful if behind a proxy like Render)
 app.set('trust proxy', 1);
 
 // Middleware
 app.use(express.json()); // Parses incoming requests with JSON payloads
-app.use(cors());
-app.use(helmet());
-app.use(mongoSanitize());
-app.use(morgan('dev'));
+
+// Configure CORS to allow requests from your frontend domain
+app.use(cors({
+  origin: 'https://codequizzer.onrender.com', // Replace with your actual frontend URL
+  credentials: true,
+}));
+
+app.use(helmet()); // Secure your Express apps by setting various HTTP headers
+app.use(mongoSanitize()); // Prevent MongoDB Operator Injection
+app.use(morgan('dev')); // HTTP request logger
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -31,7 +37,10 @@ app.use(limiter);
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true, // Options to prevent deprecation warnings
+    useUnifiedTopology: true,
+  })
   .then(() => console.log('MongoDB connected successfully'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
@@ -81,11 +90,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-// Deploying to Render
-const cors = require('cors');
-
-app.use(cors({
-  origin: 'https://codequizzer.onrender.com',
-  credentials: true,
-}));
