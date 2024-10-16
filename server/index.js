@@ -18,9 +18,19 @@ app.set('trust proxy', 1);
 // Middleware
 app.use(express.json()); // Parses incoming requests with JSON payloads
 
-// Configure CORS to allow requests from your frontend domain
+// Allow Multiple Origins
+const allowedOrigins = ['http://localhost:3000', 'https://codequizzer.onrender.com'];
+
 app.use(cors({
-  origin: 'https://codequizzer.onrender.com', // Replace with your actual frontend URL
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
 }));
 
@@ -37,10 +47,7 @@ app.use(limiter);
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true, // Options to prevent deprecation warnings
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB connected successfully'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
