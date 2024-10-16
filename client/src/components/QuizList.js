@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '../axiosInstance';
 import { Link } from 'react-router-dom';
 
 const QuizList = () => {
@@ -10,7 +10,7 @@ const QuizList = () => {
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
-        const res = await axios.get('/api/quizzes');
+        const res = await axiosInstance.get('/api/quizzes');
         setQuizzes(res.data);
         setLoading(false);
       } catch (err) {
@@ -23,7 +23,14 @@ const QuizList = () => {
     fetchQuizzes();
   }, []);
 
-  if (loading) return <div className="text-center mt-4"><div className="spinner-border" role="status"><span className="visually-hidden">Loading...</span></div></div>;
+  if (loading)
+    return (
+      <div className="text-center mt-4">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
   if (error) return <div className="alert alert-danger mt-4">{error}</div>;
 
   return (
@@ -36,7 +43,9 @@ const QuizList = () => {
               <div className="card-body">
                 <h5 className="card-title">{quiz.title}</h5>
                 <p className="card-text">{quiz.description}</p>
-                <Link to={`/quizzes/${quiz._id}`} className="btn btn-primary">Start Quiz</Link>
+                <Link to={`/quizzes/${quiz._id}`} className="btn btn-primary">
+                  Start Quiz
+                </Link>
               </div>
             </div>
           </div>
