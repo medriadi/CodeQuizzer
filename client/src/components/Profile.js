@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
+import axiosInstance from '../axiosInstance';
 import { AuthContext } from '../context/AuthContext';
 
 const Profile = () => {
@@ -21,7 +21,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfileAndQuizzes = async () => {
       try {
-        const profileRes = await axios.get('/api/profile');
+        const profileRes = await axiosInstance.get('/api/profile');
         setProfile(profileRes.data);
         setFormData({
           username: profileRes.data.username,
@@ -29,7 +29,7 @@ const Profile = () => {
           password: '',
         });
 
-        const quizzesRes = await axios.get('/api/quizzes');
+        const quizzesRes = await axiosInstance.get('/api/quizzes');
         setQuizzes(quizzesRes.data);
 
         setLoading(false);
@@ -54,7 +54,7 @@ const Profile = () => {
     setSubmitting(true);
 
     try {
-      const res = await axios.put('/api/profile', formData);
+      const res = await axiosInstance.put('/api/profile', formData);
       setSuccessMessage(res.data.msg);
 
       const updatedUser = {
