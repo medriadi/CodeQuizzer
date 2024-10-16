@@ -11,7 +11,7 @@ const Home = () => {
           <p className="lead">
             Your ultimate platform to test and improve your programming knowledge!
           </p>
-          <Link className="btn btn-primary btn-lg mt-3" to="/quizzes" role="button">
+          <Link className="btn btn-primary btn-lg mt-3" to="/Login" role="button">
             Get Started
           </Link>
         </div>
