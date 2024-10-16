@@ -81,3 +81,11 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+// Deploying to Render
+const cors = require('cors');
+
+app.use(cors({
+  origin: 'https://codequizzer.onrender.com',
+  credentials: true,
+}));
