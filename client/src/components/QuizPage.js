@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../axiosInstance';
 import { AuthContext } from '../context/AuthContext';
 
 const QuizPage = () => {
@@ -17,11 +17,7 @@ const QuizPage = () => {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const res = await axios.get(`/api/quizzes/${id}`, {
-          headers: {
-            'x-auth-token': auth.token,
-          },
-        });
+        const res = await axiosInstance.get(`/api/quizzes/${id}`);
         setQuiz(res.data);
         setLoading(false);
       } catch (err) {
@@ -32,7 +28,7 @@ const QuizPage = () => {
     };
 
     fetchQuiz();
-  }, [id, auth.token]);
+  }, [id]);
 
   const handleChange = (questionId, selectedOption) => {
     setAnswers({
@@ -51,12 +47,8 @@ const QuizPage = () => {
     }));
 
     try {
-      const res = await axios.post(`/api/quizzes/${id}/submit`, {
+      const res = await axiosInstance.post(`/api/quizzes/${id}/submit`, {
         answers: formattedAnswers,
-      }, {
-        headers: {
-          'x-auth-token': auth.token,
-        },
       });
 
       setResult(res.data);
