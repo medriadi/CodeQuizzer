@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useContext } from 'react';
+import axiosInstance from '../axiosInstance';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 const Register = () => {
+  const { setAuth } = useContext(AuthContext);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,8 +17,15 @@ const Register = () => {
     setSubmitting(true);
     setError('');
     try {
-      const res = await axios.post('/api/auth/register', { username, email, password });
+      const res = await axiosInstance.post('/api/auth/register', { username, email, password });
       localStorage.setItem('token', res.data.token);
+      setAuth((prevState) => ({
+        ...prevState,
+        token: res.data.token,
+        isAuthenticated: true,
+        loading: false,
+      }));
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.msg || 'Registration failed');
