@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // Ensure you have this import
 import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
@@ -7,7 +7,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Use navigate for navigation
   const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
@@ -56,9 +56,23 @@ const Login = () => {
               />
             </div>
             <button type="submit" className="btn btn-primary w-100" disabled={submitting}>
-              {submitting ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Login'}
+              {submitting ? (
+                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              ) : (
+                'Login'
+              )}
             </button>
           </form>
+          <div className="mt-3 text-center">
+            <span>Don't have an account? </span>
+            <button
+              type="button"
+              className="btn btn-secondary w-100 mt-2"
+              onClick={() => navigate('/register')}
+            >
+              Register
+            </button>
+          </div>
         </div>
       </div>
     </div>
