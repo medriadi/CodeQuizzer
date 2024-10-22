@@ -14,19 +14,29 @@ import ProtectedRoute from './components/ProtectedRoute';
 function App() {
   return (
     <AuthProvider>
+      {/* Wrapping the entire application with AuthProvider to provide authentication context */}
       <Router>
-        <Navbar />
+        {/* Router component to handle navigation between different routes */}
+        <Navbar /> {/* Navbar component displayed on all pages */}
         <div className="container mt-4">
+          {/* Container for main content with margin on top */}
           <Routes>
+            {/* Define all the routes for the application */}
             <Route path="/" element={<Home />} />
+            {/* Home page route */}
             <Route path="/quizzes" element={<QuizList />} />
+            {/* Quiz list page route displaying all available quizzes */}
             <Route path="/quizzes/:id" element={<QuizPage />} />
+            {/* Quiz page route to display specific quiz based on ID */}
             <Route path="/login" element={<Login />} />
+            {/* Login page route */}
             <Route path="/register" element={<Register />} />
+            {/* Register page route */}
             <Route
               path="/leaderboard"
               element={
                 <ProtectedRoute>
+                  {/* Protected route to prevent unauthenticated users from accessing the leaderboard */}
                   <Leaderboard />
                 </ProtectedRoute>
               }
@@ -35,6 +45,7 @@ function App() {
               path="/profile"
               element={
                 <ProtectedRoute>
+                  {/* Protected route to prevent unauthenticated users from accessing the profile page */}
                   <Profile />
                 </ProtectedRoute>
               }

@@ -4,25 +4,26 @@ import { Link } from 'react-router-dom';
 const Home = () => {
   return (
     <div>
-      {/* Hero Section */}
+      {/* Hero Section - Main introduction to the platform */}
       <section className="text-center p-5 bg-light">
         <div className="container">
           <h1 className="display-4">Welcome to CodeQuizzer</h1>
           <p className="lead">
             Your ultimate platform to test and improve your programming knowledge!
           </p>
+          {/* Button to navigate to the login page */}
           <Link className="btn btn-primary btn-lg mt-3" to="/Login" role="button">
             Get Started
           </Link>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features Section - Highlighting main features of the platform */}
       <section className="py-5">
         <div className="container">
           <h2 className="text-center mb-4">Features</h2>
           <div className="row">
-            {/* Feature 1 */}
+            {/* Feature 1 - Diverse Quizzes */}
             <div className="col-md-4 mb-4">
               <div className="card h-100 shadow-sm">
                 <div className="card-body">
@@ -33,7 +34,7 @@ const Home = () => {
                 </div>
               </div>
             </div>
-            {/* Feature 2 */}
+            {/* Feature 2 - Instant Feedback */}
             <div className="col-md-4 mb-4">
               <div className="card h-100 shadow-sm">
                 <div className="card-body">
@@ -44,7 +45,7 @@ const Home = () => {
                 </div>
               </div>
             </div>
-            {/* Feature 3 */}
+            {/* Feature 3 - Track Progress */}
             <div className="col-md-4 mb-4">
               <div className="card h-100 shadow-sm">
                 <div className="card-body">
@@ -59,23 +60,27 @@ const Home = () => {
         </div>
       </section>
 
-      {/* How It Works Section */}
+      {/* How It Works Section - Step-by-step guide on using the platform */}
       <section className="bg-light py-5">
         <div className="container">
           <h2 className="text-center mb-4">How It Works</h2>
           <div className="row">
+            {/* Step 1 - Choose a Quiz */}
             <div className="col-md-6 mb-4">
               <h4>1. Choose a Quiz</h4>
               <p>Select from a variety of quizzes tailored to different programming languages and skill levels.</p>
             </div>
+            {/* Step 2 - Take the Quiz */}
             <div className="col-md-6 mb-4">
               <h4>2. Take the Quiz</h4>
               <p>Answer multiple-choice questions designed to test your knowledge and understanding.</p>
             </div>
+            {/* Step 3 - Review Results */}
             <div className="col-md-6 mb-4">
               <h4>3. Review Results</h4>
               <p>Receive detailed feedback on your performance, including correct answers and explanations.</p>
             </div>
+            {/* Step 4 - Improve and Repeat */}
             <div className="col-md-6 mb-4">
               <h4>4. Improve and Repeat</h4>
               <p>Identify areas for improvement and take more quizzes to enhance your programming skills.</p>
@@ -84,7 +89,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Footer Section */}
+      {/* Footer Section - Footer content with copyright and developer information */}
       <footer className="bg-dark text-white py-4">
         <div className="container text-center">
           <p className="mb-1">&copy; {new Date().getFullYear()} CodeQuizzer. All rights reserved.</p>

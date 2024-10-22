@@ -862,6 +862,14 @@ const quizzes = [
   // You can add more quizzes for other languages here following the same structure
 ];
 
+/**
+ * Function to seed the database with quizzes and questions
+ * This function will:
+ * 1. Connect to MongoDB using the URI from environment variables.
+ * 2. Clear existing quizzes and questions from the database.
+ * 3. Insert quizzes and their corresponding questions.
+ */
+
 const seedDatabase = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
