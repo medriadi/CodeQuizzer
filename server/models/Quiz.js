@@ -6,11 +6,15 @@ const QuizSchema = new mongoose.Schema({
   title: {
     type: String, // The title must be a string
     required: true, // The title is mandatory, every quiz must have a title
+    trim: true,
+    maxlength: 120,
   },
   // A description of the quiz
   description: {
     type: String, // The description is a string providing additional information about the quiz
     required: false, // The description is optional, it can be provided if needed
+    trim: true,
+    maxlength: 500,
   },
   // Array of questions associated with the quiz
   questions: [

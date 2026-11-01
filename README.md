@@ -104,10 +104,12 @@ Add the following environment variables to the `.env` file:
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret_key
 PORT=5000
+ALLOWED_ORIGINS=http://localhost:3000
 ```
 
 - Replace `your_mongodb_connection_string` with your actual MongoDB connection string.
 - Replace `your_jwt_secret_key` with a secure secret key for JWT.
+- Use a comma-separated `ALLOWED_ORIGINS` value when the client is hosted on more than one origin.
 
 #### Front-end Configuration
 

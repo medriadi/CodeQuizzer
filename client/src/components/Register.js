@@ -1,43 +1,40 @@
-import React, { useState, useContext } from 'react';
-import axiosInstance from '../axiosInstance';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axiosInstance, { setAuthToken } from '../axiosInstance';
 import { AuthContext } from '../context/AuthContext';
 
 const Register = () => {
-  const { setAuth } = useContext(AuthContext); // Use AuthContext to update authentication state after successful registration
-  const [username, setUsername] = useState(''); // State for storing the user's entered username
-  const [email, setEmail] = useState(''); // State for storing the user's entered email
-  const [password, setPassword] = useState(''); // State for storing the user's entered password
-  const [error, setError] = useState(''); // State for storing any error messages from registration process
-  const [submitting, setSubmitting] = useState(false); // State for managing the submission/loading status
-  const navigate = useNavigate(); // Hook for navigation between routes
+  const { setAuth } = useContext(AuthContext);
+  const [form, setForm] = useState({ username: '', email: '', password: '' });
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
 
-  // Handle form submission for registration
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent the default form submission behavior
-    setSubmitting(true); // Set submitting state to true to indicate form is being submitted
-    setError(''); // Clear previous error messages
+  const handleChange = (event) => {
+    setForm((previous) => ({ ...previous, [event.target.name]: event.target.value }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError('');
+    setSubmitting(true);
     try {
-      // Make POST request to register endpoint with user's entered data
-      const res = await axiosInstance.post('/api/auth/register', { username, email, password });
-      // Store the received token in localStorage
-      localStorage.setItem('token', res.data.token);
-      // Update AuthContext with new authentication state after successful registration
-      setAuth((prevState) => ({
-        ...prevState,
-        token: res.data.token, // Set token from response
-        isAuthenticated: true, // Set authentication status to true
-        loading: false, // Loading is complete
+      const response = await axiosInstance.post('/api/auth/register', form);
+      localStorage.setItem('token', response.data.token);
+      setAuth((previous) => ({
+        ...previous,
+        token: response.data.token,
+        isAuthenticated: true,
+        loading: false,
       }));
-      // Set the default Authorization header for future axios requests
-      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
-      // Navigate to the home page after successful registration
+      setAuthToken(response.data.token);
+      const userResponse = await axiosInstance.get('/api/auth/user');
+      setAuth((previous) => ({ ...previous, user: userResponse.data }));
       navigate('/');
-    } catch (err) {
-      // Set error message if registration fails
-      setError(err.response?.data?.msg || 'Registration failed');
+    } catch (requestError) {
+      setError(requestError.response?.data?.msg || 'Registration failed');
     } finally {
-      setSubmitting(false); // Set submitting state to false after request completes
+      setSubmitting(false);
     }
   };
 
@@ -45,56 +42,24 @@ const Register = () => {
     <div className="row justify-content-center">
       <div className="col-md-6">
         <div className="card shadow-sm p-4">
-          <h2 className="text-center mb-4">Register</h2>
-          {/* Display error message if there is one */}
-          {error && <div className="alert alert-danger">{error}</div>}
-          <form onSubmit={handleSubmit} noValidate>
+          <h2 className="text-center mb-4">Create your account</h2>
+          {error && <div className="alert alert-danger" role="alert">{error}</div>}
+          <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="username" className="form-label">Username</label>
-              <input
-                type="text"
-                className="form-control"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)} // Update username state when user types
-                required
-              />
-              <div className="invalid-feedback">
-                Please enter a username. {/* Display message when username is invalid */}
-              </div>
+              <input id="username" name="username" className="form-control" value={form.username} onChange={handleChange} minLength="3" maxLength="30" required />
             </div>
             <div className="mb-3">
               <label htmlFor="email" className="form-label">Email address</label>
-              <input
-                type="email"
-                className="form-control"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)} // Update email state when user types
-                required
-              />
-              <div className="invalid-feedback">
-                Please enter a valid email. {/* Display message when email is invalid */}
-              </div>
+              <input id="email" name="email" type="email" className="form-control" value={form.email} onChange={handleChange} required />
             </div>
             <div className="mb-3">
               <label htmlFor="password" className="form-label">Password</label>
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)} // Update password state when user types
-                required
-              />
-              <div className="form-text">
-                Password must be at least 6 characters long. {/* Inform user about password requirements */}
-              </div>
+              <input id="password" name="password" type="password" className="form-control" value={form.password} onChange={handleChange} minLength="6" required />
+              <div className="form-text">Password must be at least 6 characters long.</div>
             </div>
-            {/* Submit button to register */}
             <button type="submit" className="btn btn-primary w-100" disabled={submitting}>
-              {/* Show spinner while submitting, otherwise show 'Register' */}
-              {submitting ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Register'}
+              {submitting ? 'Creating account...' : 'Register'}
             </button>
           </form>
         </div>

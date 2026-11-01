@@ -15,7 +15,10 @@ const User = require('../models/User');
 router.get('/', async (req, res) => {
   try {
     // Fetch all quizzes and select only specific fields to reduce response size
-    const quizzes = await Quiz.find().select('title description');
+    const quizzes = await Quiz.find()
+      .select('title description questions')
+      .sort({ createdAt: -1 })
+      .lean();
     res.json(quizzes); // Return the list of quizzes to the client
   } catch (err) {
     console.error(err.message); // Log any error message for debugging purposes
@@ -86,7 +89,19 @@ router.post(
         return res.status(404).json({ msg: 'Quiz not found' });
       }
 
-      const userAnswers = req.body.answers; // Expected format: [{ questionId, selectedOption }, ...]
+      const userAnswers = req.body.answers;
+      const questionIds = quiz.questions.map((question) => question.id);
+      const submittedIds = userAnswers.map((answer) => answer.questionId);
+
+      if (new Set(submittedIds).size !== submittedIds.length) {
+        return res.status(400).json({ msg: 'Each question may only be answered once' });
+      }
+      if (
+        submittedIds.length !== questionIds.length ||
+        submittedIds.some((questionId) => !questionIds.includes(questionId))
+      ) {
+        return res.status(400).json({ msg: 'Answers must include every quiz question' });
+      }
 
       let score = 0; // Initialize the user's score
       const results = []; // Array to store detailed results for each question
@@ -100,7 +115,7 @@ router.post(
       // Iterate through user answers to evaluate correctness
       userAnswers.forEach((answer) => {
         const question = questionsMap[answer.questionId]; // Get the question by ID from the map
-        if (question) {
+        if (question && question.options.includes(answer.selectedOption)) {
           const isCorrect = question.correctAnswer === answer.selectedOption; // Check if the selected option matches the correct answer
           if (isCorrect) score += 1; // Increment the score if the answer is correct
           // Push the result for each question, including relevant details
@@ -117,6 +132,9 @@ router.post(
 
       // Update the user's quiz attempts with the latest quiz attempt
       const user = await User.findById(req.user.id);
+      if (!user) {
+        return res.status(404).json({ msg: 'User not found' });
+      }
       user.quizAttempts.push({
         quizId: quiz._id, // Reference the quiz ID
         score, // User's score in this quiz

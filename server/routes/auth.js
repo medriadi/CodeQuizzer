@@ -34,7 +34,9 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { username, email, password } = req.body;
+    const username = req.body.username?.trim();
+    const email = req.body.email?.trim().toLowerCase();
+    const { password } = req.body;
 
     try {
       // Check if a user with the given email or username already exists
@@ -64,15 +66,8 @@ router.post(
       };
 
       // Sign the JWT and send it in the response
-      jwt.sign(
-        payload,
-        process.env.JWT_SECRET, // Use a secret key from environment variables
-        { expiresIn: '1h' }, // Set token expiration time to 1 hour
-        (err, token) => {
-          if (err) throw err; // Handle any error during token signing
-          res.json({ token }); // Send the generated token to the client
-        }
-      );
+      const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+      res.json({ token });
     } catch (err) {
       console.error(err.message); // Log any server error to the console for debugging
       res.status(500).send('Server error'); // Return a server error response
@@ -101,7 +96,8 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { email, password } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
+    const { password } = req.body;
 
     try {
       // Check if the user exists by email
@@ -126,15 +122,8 @@ router.post(
       };
 
       // Sign the JWT and send it in the response
-      jwt.sign(
-        payload,
-        process.env.JWT_SECRET, // Use a secret key from environment variables
-        { expiresIn: '1h' }, // Set token expiration time to 1 hour
-        (err, token) => {
-          if (err) throw err; // Handle any error during token signing
-          res.json({ token }); // Send the generated token to the client
-        }
-      );
+      const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+      res.json({ token });
     } catch (err) {
       console.error(err.message); // Log any server error to the console for debugging
       res.status(500).send('Server error'); // Return a server error response

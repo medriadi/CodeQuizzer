@@ -6,18 +6,28 @@ const QuestionSchema = new mongoose.Schema({
   questionText: {
     type: String, // The question must be a string
     required: true, // The question text is mandatory, it cannot be null or undefined
+    trim: true,
   },
   // The possible options for answering the question
   options: {
     type: [String], // An array containing possible answer strings, each being of type String
     required: true, // The options array is mandatory, meaning the question must have options
     // Custom validation to ensure there are exactly 4 options
-    validate: [arrayLimit, '{PATH} must have exactly 4 options'], // Ensures there are always 4 possible answers
+    validate: [
+      { validator: arrayLimit, message: '{PATH} must have exactly 4 options' },
+      { validator: (options) => new Set(options).size === options.length, message: '{PATH} must contain unique options' },
+    ],
   },
   // The correct answer for the question
   correctAnswer: {
     type: String, // The correct answer must be a string matching one of the options
     required: true, // The correct answer is mandatory, it cannot be null or undefined
+    validate: {
+      validator: function (answer) {
+        return this.options.includes(answer);
+      },
+      message: 'Correct answer must match one of the options',
+    },
   },
   // An optional explanation for the correct answer
   explanation: {

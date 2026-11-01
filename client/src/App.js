@@ -26,7 +26,14 @@ function App() {
             {/* Home page route */}
             <Route path="/quizzes" element={<QuizList />} />
             {/* Quiz list page route displaying all available quizzes */}
-            <Route path="/quizzes/:id" element={<QuizPage />} />
+            <Route
+              path="/quizzes/:id"
+              element={
+                <ProtectedRoute>
+                  <QuizPage />
+                </ProtectedRoute>
+              }
+            />
             {/* Quiz page route to display specific quiz based on ID */}
             <Route path="/login" element={<Login />} />
             {/* Login page route */}
