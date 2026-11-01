@@ -23,3 +23,7 @@ Thumbs.db
 
 # VSCode settings
 .vscode/
+
+# Local verification tools
+/.tooling/
+/.pnpm-store/

@@ -901,6 +901,8 @@ const seedDatabase = async () => {
       const quiz = new Quiz({
         title,
         description,
+        category: title.split(' ')[0],
+        difficulty: 'Beginner',
         questions: questionIds,
       });
 
