@@ -168,6 +168,22 @@ npm run dev
 - **Server:** Runs on `http://localhost:5000`
 - **Client:** Runs on `http://localhost:3000`
 
+### Deploying the React client on Render
+
+The client is a single-page application. Configure the Render Static Site with
+`Root Directory: client`, `Build Command: npm run build`, and `Publish Directory:
+build`. Add this rewrite in the Render dashboard under **Redirects/Rewrites**:
+
+```text
+Source: /*
+Destination: /index.html
+Action: Rewrite
+```
+
+The repository also includes `client/public/_redirects` for hosts that support
+file-based SPA rewrites. This rewrite is required so refreshing `/login`,
+`/register`, `/quizzes`, or `/profile` serves React instead of a 404 response.
+
 ## Usage
 
 ### Register a New User
