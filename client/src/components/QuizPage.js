@@ -299,6 +299,7 @@ export default function QuizPage() {
           </button>
           {current === total - 1 ? (
             <button
+              key="submit"
               className="button button-primary"
               type="submit"
               disabled={submitting}
@@ -307,10 +308,14 @@ export default function QuizPage() {
             </button>
           ) : (
             <button
+              key="next"
               className="button button-primary"
               type="button"
               disabled={submitting}
-              onClick={() => setCurrent((value) => value + 1)}
+              onClick={(event) => {
+                event.preventDefault();
+                setCurrent((value) => value + 1);
+              }}
             >
               Next question →
             </button>

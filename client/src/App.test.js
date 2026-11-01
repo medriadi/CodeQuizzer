@@ -87,6 +87,7 @@ test("quiz returns to unanswered questions and submits exactly one answer per qu
   renderPage(<QuizPage />);
   await screen.findByText("First question");
   fireEvent.click(screen.getByRole("button", { name: "Next question →" }));
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   fireEvent.click(screen.getByLabelText("Three"));
   fireEvent.click(screen.getByRole("button", { name: "Finish challenge ✓" }));
   expect(screen.getByRole("alert")).toHaveTextContent(
