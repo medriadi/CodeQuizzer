@@ -1730,3 +1730,23 @@ select {
     scroll-behavior: auto !important;
   }
 }
+.loading-hint {
+  max-width: 340px;
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: center;
+}
+.skip-link {
+  position: fixed;
+  left: 16px;
+  top: -100px;
+  padding: 12px 20px;
+  background: var(--ink);
+  color: white;
+  z-index: 100;
+  border-radius: 6px;
+}
+.skip-link:focus {
+  top: 12px;
+  color: white;
+}

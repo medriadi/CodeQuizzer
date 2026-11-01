@@ -4,10 +4,12 @@ import Home from "./components/Home";
 import QuizList from "./components/QuizList";
 import QuizPage from "./components/QuizPage";
 import axiosInstance from "./axiosInstance";
+import { AuthContext } from "./context/AuthContext";
 
 jest.mock("./axiosInstance", () => ({
   __esModule: true,
   default: { get: jest.fn(), post: jest.fn() },
+  requestMessage: (_error, fallback) => fallback,
 }));
 beforeEach(() => jest.clearAllMocks());
 const renderPage = (page) => render(<MemoryRouter>{page}</MemoryRouter>);
@@ -99,10 +101,77 @@ test("quiz returns to unanswered questions and submits exactly one answer per qu
   expect(axiosInstance.post).toHaveBeenCalledWith(
     expect.stringContaining("/submit"),
     {
+      submissionId: expect.any(String),
       answers: [
         { questionId: "q1", selectedOption: "One" },
         { questionId: "q2", selectedOption: "Three" },
       ],
     },
   );
+});
+
+test("choosing Java does not include JavaScript challenges", async () => {
+  axiosInstance.get.mockResolvedValue({
+    data: [
+      {
+        _id: "java",
+        title: "Java Fundamentals",
+        category: "Java",
+        difficulty: "Beginner",
+        questionCount: 10,
+      },
+      {
+        _id: "js",
+        title: "JavaScript Basics",
+        category: "JavaScript",
+        difficulty: "Beginner",
+        questionCount: 10,
+      },
+    ],
+  });
+  renderPage(<QuizList />);
+  await screen.findByRole("heading", { name: "Java Fundamentals" });
+  fireEvent.click(screen.getByRole("button", { name: "Java", exact: true }));
+  expect(
+    screen.getByRole("heading", { name: "Java Fundamentals" }),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByRole("heading", { name: "JavaScript Basics" }),
+  ).not.toBeInTheDocument();
+});
+
+test("a quiz draft restores answers and question position after a refresh", async () => {
+  sessionStorage.clear();
+  axiosInstance.get.mockResolvedValue({
+    data: {
+      title: "Draft challenge",
+      questions: [
+        {
+          _id: "q1",
+          questionText: "Saved first question",
+          options: ["One", "Two"],
+        },
+        {
+          _id: "q2",
+          questionText: "Saved second question",
+          options: ["Three", "Four"],
+        },
+      ],
+    },
+  });
+  const content = (
+    <AuthContext.Provider value={{ auth: { user: { _id: "draft-user" } } }}>
+      <QuizPage />
+    </AuthContext.Provider>
+  );
+  const first = renderPage(content);
+  await screen.findByText("Saved first question");
+  fireEvent.click(screen.getByLabelText("One"));
+  fireEvent.click(screen.getByRole("button", { name: "Next question →" }));
+  first.unmount();
+  renderPage(content);
+  await screen.findByText("Saved second question");
+  fireEvent.click(screen.getByRole("button", { name: "← Previous" }));
+  expect(screen.getByLabelText("One")).toBeChecked();
+  sessionStorage.clear();
 });

@@ -34,7 +34,7 @@ const Navbar = () => {
         >
           <NavLink to="/quizzes">Explore quizzes</NavLink>
           <NavLink to="/leaderboard">Leaderboard</NavLink>
-          {auth.isAuthenticated ? (
+          {auth.token ? (
             <>
               <NavLink to="/profile" className="nav-user">
                 {auth.user?.username || "Profile"}

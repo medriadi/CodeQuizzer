@@ -36,7 +36,9 @@
     "client": "npm start --prefix client",
     "server": "npm run dev --prefix server",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "test": "npm --prefix client test -- --watchAll=false"
+    "test": "npm --prefix client test -- --watchAll=false",
+    "test:server": "npm --prefix server test",
+    "build": "npm --prefix client run build"
   },
   "keywords": [],
   "author": "",

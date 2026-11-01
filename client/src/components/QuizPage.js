@@ -1,9 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import axiosInstance from "../axiosInstance";
+import axiosInstance, { requestMessage } from "../axiosInstance";
+import { AuthContext } from "../context/AuthContext";
+import LoadingState from "./LoadingState";
+
+const newSubmissionId = () =>
+  window.crypto?.randomUUID?.() ||
+  `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+const fingerprint = (quiz) =>
+  JSON.stringify(
+    quiz.questions.map((question) => [question._id, question.options]),
+  );
 
 export default function QuizPage() {
   const { id } = useParams();
+  const session = useContext(AuthContext);
+  const userId = session?.auth?.user?._id || session?.auth?.user?.id;
+  const draftKey = userId ? `codequizzer:draft:${userId}:${id}` : null;
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
@@ -11,6 +24,8 @@ export default function QuizPage() {
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
   const [current, setCurrent] = useState(0);
+  const [retry, setRetry] = useState(0);
+  const [submissionId, setSubmissionId] = useState(newSubmissionId);
   useEffect(() => {
     let active = true;
     setLoading(true);
@@ -22,13 +37,39 @@ export default function QuizPage() {
     axiosInstance
       .get(`/api/quizzes/${id}`)
       .then(({ data }) => {
-        if (active) setQuiz(data);
+        if (!active) return;
+        let draft;
+        try {
+          draft = draftKey && JSON.parse(sessionStorage.getItem(draftKey));
+        } catch {
+          /* Storage is optional. */
+        }
+        if (draft?.fingerprint === fingerprint(data)) {
+          const valid = Object.fromEntries(
+            data.questions
+              .filter((question) =>
+                question.options.includes(draft.answers?.[question._id]),
+              )
+              .map((question) => [question._id, draft.answers[question._id]]),
+          );
+          setAnswers(valid);
+          setCurrent(
+            Math.max(
+              0,
+              Math.min(Number(draft.current) || 0, data.questions.length - 1),
+            ),
+          );
+          setSubmissionId(draft.submissionId || newSubmissionId());
+        } else setSubmissionId(newSubmissionId());
+        setQuiz(data);
       })
       .catch((requestError) => {
         if (active)
           setError(
-            requestError.response?.data?.msg ||
-              "We couldn’t load this challenge. Please return to the library and try again.",
+            requestMessage(
+              requestError,
+              "We couldn’t load this challenge. Please try again.",
+            ),
           );
       })
       .finally(() => {
@@ -37,7 +78,23 @@ export default function QuizPage() {
     return () => {
       active = false;
     };
-  }, [id]);
+  }, [id, draftKey, retry]);
+  useEffect(() => {
+    if (!quiz || !draftKey || result) return;
+    try {
+      sessionStorage.setItem(
+        draftKey,
+        JSON.stringify({
+          fingerprint: fingerprint(quiz),
+          answers,
+          current,
+          submissionId,
+        }),
+      );
+    } catch {
+      /* Practice still works without storage. */
+    }
+  }, [quiz, draftKey, answers, current, submissionId, result]);
   const submit = async (event) => {
     event.preventDefault();
     const missing = quiz.questions.findIndex(
@@ -54,29 +111,32 @@ export default function QuizPage() {
     setSubmitting(true);
     try {
       const { data } = await axiosInstance.post(`/api/quizzes/${id}/submit`, {
+        submissionId,
         answers: quiz.questions.map((question) => ({
           questionId: question._id,
           selectedOption: answers[question._id],
         })),
       });
       setResult(data);
+      try {
+        if (draftKey) sessionStorage.removeItem(draftKey);
+      } catch {
+        /* Storage is optional. */
+      }
       window.scrollTo(0, 0);
     } catch (requestError) {
       setError(
-        requestError.response?.data?.msg ||
+        requestMessage(
+          requestError,
           "Your answers couldn’t be submitted. Please try again.",
+        ),
       );
     } finally {
       setSubmitting(false);
     }
   };
   if (loading)
-    return (
-      <div className="center-state" role="status">
-        <span className="loader" />
-        Getting your challenge ready…
-      </div>
-    );
+    return <LoadingState>Getting your challenge ready…</LoadingState>;
   if (!quiz || !quiz.questions?.length)
     return (
       <div className="center-state">
@@ -84,6 +144,12 @@ export default function QuizPage() {
         <p role="alert">
           {error || "This quiz doesn’t have any questions yet."}
         </p>
+        <button
+          className="button button-primary"
+          onClick={() => setRetry((value) => value + 1)}
+        >
+          Try again
+        </button>
         <Link className="button button-primary" to="/quizzes">
           Back to the library
         </Link>
@@ -243,6 +309,7 @@ export default function QuizPage() {
             <button
               className="button button-primary"
               type="button"
+              disabled={submitting}
               onClick={() => setCurrent((value) => value + 1)}
             >
               Next question →

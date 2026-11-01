@@ -45,7 +45,7 @@ cd ..
 npm run dev
 ```
 
-The seeder replaces existing quizzes and questions. Use it only with a database whose quiz content you intend to replace. It creates ten programming quizzes and assigns language categories to them. Older quizzes with the generic Programming category are grouped by title in the library.
+The seeder is safe to rerun: it preserves existing quiz IDs, questions, accounts, and history; fills missing category and difficulty fields; and adds missing quizzes. It does not clear collections. Older production records are also normalized by the API when read, so an existing deployment does not need to be reseeded.
 
 The client runs at `http://localhost:3000`; the API runs at `http://localhost:5000`. The home page works independently of the API; accounts, quizzes, history, and rankings require the configured backend and database.
 
@@ -53,10 +53,11 @@ The client runs at `http://localhost:3000`; the API runs at `http://localhost:50
 
 ```sh
 npm test -- --runInBand
+npm run test:server
 npm run build --prefix client
 ```
 
-The interaction tests cover the home practice question, combined library filters, and quiz submission with unanswered-question recovery. Tests mock the API and do not require a database.
+Frontend tests cover practice feedback, filters, quiz submission, and session recovery. Backend HTTP tests cover model population, legacy metadata, answer privacy, scoring, duplicate submission protection, profile changes, readiness, and error handling. Database operations are mocked in these tests; no live data is changed.
 
 ## API
 
@@ -87,3 +88,5 @@ Set `REACT_APP_BACKEND_URL` before building the client. Configure `MONGODB_URI`,
 React 18, React Router, Axios, CSS, and Bootstrap utilities on the client. Express, Mongoose, MongoDB, bcrypt, and JWT on the server.
 
 Created by Mohamed Riadi as an ALX portfolio project.
+
+The backend readiness endpoint is `/healthz`. It returns 200 only while MongoDB is connected, and 503 otherwise. Use it as Render’s Health Check Path. The client allows up to 75 seconds for requests to accommodate free-service cold starts; it never automatically retries writes. Quiz drafts are kept in session storage for the current account and tab, and each submission includes an ID so retrying a lost response does not add another attempt.

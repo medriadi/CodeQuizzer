@@ -1,11 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
-import axiosInstance from "../axiosInstance";
+import axiosInstance, { requestMessage } from "../axiosInstance";
 import { AuthContext } from "../context/AuthContext";
+import LoadingState from "./LoadingState";
 
 const Profile = () => {
   const { setAuth } = useContext(AuthContext);
   const [profile, setProfile] = useState(null);
   const [editing, setEditing] = useState(false);
+  const [retry, setRetry] = useState(0);
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [state, setState] = useState({
     loading: true,
@@ -15,20 +17,31 @@ const Profile = () => {
   });
 
   useEffect(() => {
+    let active = true;
+    setState((previous) => ({ ...previous, loading: true, error: "" }));
     axiosInstance
       .get("/api/profile")
       .then(({ data }) => {
+        if (!active) return;
         setProfile(data);
         setForm({ username: data.username, email: data.email, password: "" });
       })
-      .catch(() =>
-        setState((previous) => ({
-          ...previous,
-          error: "Unable to load your profile.",
-        })),
+      .catch(
+        (error) =>
+          active &&
+          setState((previous) => ({
+            ...previous,
+            error: requestMessage(error, "Unable to load your profile."),
+          })),
       )
-      .finally(() => setState((previous) => ({ ...previous, loading: false })));
-  }, []);
+      .finally(
+        () =>
+          active && setState((previous) => ({ ...previous, loading: false })),
+      );
+    return () => {
+      active = false;
+    };
+  }, [retry]);
 
   const save = async (event) => {
     event.preventDefault();
@@ -60,21 +73,24 @@ const Profile = () => {
       setState((previous) => ({
         ...previous,
         saving: false,
-        error: error.response?.data?.msg || "Unable to update your profile.",
+        error: requestMessage(error, "Unable to update your profile."),
       }));
     }
   };
 
-  if (state.loading)
-    return (
-      <div className="center-state">
-        <span className="loader" /> Loading profile...
-      </div>
-    );
+  if (state.loading) return <LoadingState>Loading your progress…</LoadingState>;
   if (!profile)
     return (
-      <div className="page-narrow">
-        <div className="alert alert-error">{state.error}</div>
+      <div className="center-state">
+        <div className="alert alert-error" role="alert">
+          {state.error}
+        </div>
+        <button
+          className="button button-primary"
+          onClick={() => setRetry((value) => value + 1)}
+        >
+          Try again
+        </button>
       </div>
     );
   return (
@@ -86,10 +102,15 @@ const Profile = () => {
         </div>
         <p>Keep your details current and review your learning history.</p>
       </div>
-      {state.error && <div className="alert alert-error">{state.error}</div>}
+      {state.error && (
+        <div className="alert alert-error" role="alert">
+          {state.error}
+        </div>
+      )}
       {state.success && (
         <div
           className="alert"
+          role="status"
           style={{ background: "#eef8f0", color: "#2f7d55" }}
         >
           {state.success}
@@ -123,6 +144,10 @@ const Profile = () => {
                     setForm({ ...form, username: e.target.value })
                   }
                   required
+                  minLength={3}
+                  maxLength={30}
+                  pattern="[a-zA-Z0-9]+"
+                  title="Use letters and numbers only"
                 />
               </label>
               <label>

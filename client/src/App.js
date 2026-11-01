@@ -1,5 +1,11 @@
-import React from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import React, { useEffect } from "react";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import AuthProvider from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
@@ -11,12 +17,24 @@ import QuizPage from "./components/QuizPage";
 import Leaderboard from "./components/Leaderboard";
 import Profile from "./components/Profile";
 
+function RoutePosition() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <RoutePosition />
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
         <Navbar />
-        <main className="app-shell">
+        <main className="app-shell" id="main-content">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />

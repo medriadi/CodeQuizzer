@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
 // Load environment variables from .env file
-dotenv.config();
+dotenv.config({ path: require('node:path').join(__dirname, '.env') });
 
 const Quiz = require('./models/Quiz');
 const Question = require('./models/Question');
@@ -866,7 +866,7 @@ const quizzes = [
  * Function to seed the database with quizzes and questions
  * This function will:
  * 1. Connect to MongoDB using the URI from environment variables.
- * 2. Clear existing quizzes and questions from the database.
+ * 2. Preserve existing quizzes and questions and fill missing metadata.
  * 3. Insert quizzes and their corresponding questions.
  */
 
@@ -875,13 +875,18 @@ const seedDatabase = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('MongoDB connected for seeding');
 
-    // Clear existing data
-    await Quiz.deleteMany({});
-    await Question.deleteMany({});
-    console.log('Existing quizzes and questions removed');
-
+    // Existing quiz IDs and question references must remain stable for saved history.
     for (const quizData of quizzes) {
       const { title, description, questions } = quizData;
+      const existing = await Quiz.findOne({ title }).lean();
+      if (existing) {
+        const metadata = {};
+        if (!existing.category || existing.category === 'Programming') metadata.category = title.split(' ')[0];
+        if (!existing.difficulty) metadata.difficulty = 'Beginner';
+        if (Object.keys(metadata).length) await Quiz.updateOne({ _id: existing._id }, { $set: metadata });
+        console.log('Kept existing quiz: ' + title);
+        continue;
+      }
       const questionIds = [];
 
       for (const questionData of questions) {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import LoadingState from "./LoadingState";
 import axiosInstance from "../axiosInstance";
 
 export default function QuizList() {
@@ -46,9 +47,7 @@ export default function QuizList() {
   ];
   const filtered = quizzes.filter(
     (quiz) =>
-      (topic === "All topics" ||
-        quiz.category === topic ||
-        quiz.title.toLowerCase().includes(topic.toLowerCase())) &&
+      (topic === "All topics" || quiz.category === topic) &&
       (difficulty === "All levels" || quiz.difficulty === difficulty) &&
       `${quiz.title} ${quiz.description || ""} ${quiz.category || ""}`
         .toLowerCase()
@@ -118,10 +117,7 @@ export default function QuizList() {
         ))}
       </div>
       {state.loading ? (
-        <div className="center-state" role="status">
-          <span className="loader" />
-          Finding your next challenge…
-        </div>
+        <LoadingState>Finding your next challenge…</LoadingState>
       ) : state.error ? (
         <div className="empty-state" role="alert">
           <h2>A small connection hiccup.</h2>
