@@ -1,67 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import axiosInstance from '../axiosInstance';
 import { Link } from 'react-router-dom';
+import axiosInstance from '../axiosInstance';
 
 const QuizList = () => {
-  // State to store fetched quizzes data
   const [quizzes, setQuizzes] = useState([]);
-  // State to manage loading status while fetching data
-  const [loading, setLoading] = useState(true);
-  // State to store any error messages during the data fetch
-  const [error, setError] = useState('');
-
-  // useEffect to fetch quizzes from the backend API when the component mounts
+  const [state, setState] = useState({ loading: true, error: '' });
   useEffect(() => {
-    const fetchQuizzes = async () => {
-      try {
-        // Make a GET request to fetch the list of quizzes
-        const res = await axiosInstance.get('/api/quizzes');
-        setQuizzes(res.data); // Store fetched quizzes in the state
-        setLoading(false); // Set loading to false after fetching data
-      } catch (err) {
-        console.error(err); // Log any errors that occur during the fetch
-        setError('Failed to fetch quizzes'); // Set error message if fetching fails
-        setLoading(false); // Stop loading in case of an error
-      }
-    };
+    let active = true;
+    axiosInstance.get('/api/quizzes')
+      .then(({ data }) => active && setQuizzes(data))
+      .catch(() => active && setState({ loading: false, error: 'We could not load quizzes right now.' }))
+      .finally(() => active && setState((previous) => ({ ...previous, loading: false })));
+    return () => { active = false; };
+  }, []);
 
-    fetchQuizzes(); // Call the function to fetch quizzes
-  }, []); // Empty dependency array ensures this effect runs only once when the component mounts
-
-  // Show loading spinner while data is being fetched
-  if (loading)
-    return (
-      <div className="text-center mt-4">
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  
-  // Show error message if there is an error during data fetching
-  if (error) return <div className="alert alert-danger mt-4">{error}</div>;
-
+  if (state.loading) return <div className="center-state"><span className="loader" /> Loading quizzes...</div>;
+  if (state.error) return <div className="page-narrow"><div className="alert alert-error">{state.error}</div></div>;
   return (
-    <div>
-      <h2 className="text-center my-4">Available Quizzes</h2>
-      <div className="row">
-        {/* Iterate over quizzes and render each quiz card */}
-        {quizzes.map((quiz) => (
-          <div className="col-md-4 mb-4" key={quiz._id}>
-            <div className="card h-100 shadow-sm">
-              <div className="card-body">
-                <h5 className="card-title">{quiz.title}</h5> {/* Display quiz title */}
-                <p className="card-text">{quiz.description}</p> {/* Display quiz description */}
-                {/* Link to start the selected quiz */}
-                <Link to={`/quizzes/${quiz._id}`} className="btn btn-primary">
-                  Start Quiz
-                </Link>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <section className="page-section">
+      <div className="section-heading"><div><p className="eyebrow">THE LIBRARY</p><h1>Choose your next challenge.</h1></div><p>Pick a topic, test your knowledge, and get better one question at a time.</p></div>
+      {quizzes.length === 0 ? <div className="empty-state">New quizzes are on the way. Check back soon.</div> : (
+        <div className="quiz-grid">{quizzes.map((quiz) => (
+          <article className="quiz-card" key={quiz._id}>
+            <div className="quiz-card-top"><span className="tag">{quiz.category}</span><span className={`difficulty difficulty-${quiz.difficulty.toLowerCase()}`}>{quiz.difficulty}</span></div>
+            <h2>{quiz.title}</h2><p>{quiz.description || 'Sharpen your skills with this focused challenge.'}</p>
+            <div className="quiz-card-footer"><span>{quiz.questionCount} questions</span><Link className="button button-small" to={`/quizzes/${quiz._id}`}>Start quiz →</Link></div>
+          </article>
+        ))}</div>
+      )}
+    </section>
   );
 };
 

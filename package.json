@@ -4,7 +4,7 @@
   },
   "name": "codequizzer",
   "version": "1.0.0",
-  "description": "Under construction",
+  "description": "A focused programming quiz platform for deliberate practice.",
   "main": "index.js",
   "dependencies": {
     "ansi-regex": "^5.0.1",

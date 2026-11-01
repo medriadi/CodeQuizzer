@@ -1,105 +1,45 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const Home = () => {
-  return (
-    <div>
-      {/* Hero Section - Main introduction to the platform */}
-      <section className="text-center p-5 bg-light">
-        <div className="container">
-          <h1 className="display-4">Welcome to CodeQuizzer</h1>
-          <p className="lead">
-            Your ultimate platform to test and improve your programming knowledge!
-          </p>
-          {/* Button to navigate to the login page */}
-          <Link className="btn btn-primary btn-lg mt-3" to="/quizzes" role="button">
-            Get Started
-          </Link>
+const Home = () => (
+  <>
+    <section className="hero">
+      <div className="hero-copy">
+        <p className="eyebrow">LEVEL UP YOUR CRAFT</p>
+        <h1>Think sharper.<br /><span>Code better.</span></h1>
+        <p className="hero-lead">Focused programming quizzes with instant feedback, clear explanations, and progress you can actually see.</p>
+        <div className="hero-actions">
+          <Link className="button button-primary" to="/quizzes">Browse quizzes <span>→</span></Link>
+          <Link className="text-link" to="/register">Create a free account <span>↗</span></Link>
         </div>
-      </section>
-
-      {/* Features Section - Highlighting main features of the platform */}
-      <section className="py-5">
-        <div className="container">
-          <h2 className="text-center mb-4">Features</h2>
-          <div className="row">
-            {/* Feature 1 - Diverse Quizzes */}
-            <div className="col-md-4 mb-4">
-              <div className="card h-100 shadow-sm">
-                <div className="card-body">
-                  <h5 className="card-title">Diverse Quizzes</h5>
-                  <p className="card-text">
-                    Access a wide range of quizzes covering various programming languages and topics.
-                  </p>
-                </div>
-              </div>
-            </div>
-            {/* Feature 2 - Instant Feedback */}
-            <div className="col-md-4 mb-4">
-              <div className="card h-100 shadow-sm">
-                <div className="card-body">
-                  <h5 className="card-title">Instant Feedback</h5>
-                  <p className="card-text">
-                    Receive immediate feedback on your answers to understand your strengths and areas for improvement.
-                  </p>
-                </div>
-              </div>
-            </div>
-            {/* Feature 3 - Track Progress */}
-            <div className="col-md-4 mb-4">
-              <div className="card h-100 shadow-sm">
-                <div className="card-body">
-                  <h5 className="card-title">Track Progress</h5>
-                  <p className="card-text">
-                    Monitor your quiz history and performance over time to gauge your learning journey.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section - Step-by-step guide on using the platform */}
-      <section className="bg-light py-5">
-        <div className="container">
-          <h2 className="text-center mb-4">How It Works</h2>
-          <div className="row">
-            {/* Step 1 - Choose a Quiz */}
-            <div className="col-md-6 mb-4">
-              <h4>1. Choose a Quiz</h4>
-              <p>Select from a variety of quizzes tailored to different programming languages and skill levels.</p>
-            </div>
-            {/* Step 2 - Take the Quiz */}
-            <div className="col-md-6 mb-4">
-              <h4>2. Take the Quiz</h4>
-              <p>Answer multiple-choice questions designed to test your knowledge and understanding.</p>
-            </div>
-            {/* Step 3 - Review Results */}
-            <div className="col-md-6 mb-4">
-              <h4>3. Review Results</h4>
-              <p>Receive detailed feedback on your performance, including correct answers and explanations.</p>
-            </div>
-            {/* Step 4 - Improve and Repeat */}
-            <div className="col-md-6 mb-4">
-              <h4>4. Improve and Repeat</h4>
-              <p>Identify areas for improvement and take more quizzes to enhance your programming skills.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer Section - Footer content with copyright and developer information */}
-      <footer className="bg-dark text-white py-4">
-        <div className="container text-center">
-          <p className="mb-1">&copy; {new Date().getFullYear()} CodeQuizzer. All rights reserved.</p>
-          <p className="mb-0">
-            This project was developed as part of the ALX portfolio project for Cohort-1-Blended by Mohamed RIADI.
-          </p>
-        </div>
-      </footer>
-    </div>
-  );
-};
+      </div>
+      <div className="hero-card" aria-label="Quiz preview">
+        <div className="preview-top"><span className="status-dot" /> LIVE PRACTICE SESSION <span>01 / 10</span></div>
+        <p className="preview-label">JavaScript · Fundamentals</p>
+        <h2>Which method creates a new array with every element passing a test?</h2>
+        {['filter()', 'forEach()', 'map()', 'reduce()'].map((option, index) => (
+          <div className={`preview-option ${index === 0 ? 'preview-selected' : ''}`} key={option}><span>{String.fromCharCode(65 + index)}</span>{option}{index === 0 && <b>✓</b>}</div>
+        ))}
+        <div className="preview-footer"><span>Progress</span><strong>4 / 10</strong></div>
+        <div className="preview-progress"><span /></div>
+      </div>
+    </section>
+    <section className="stats-strip">
+      <div><strong>100+</strong><span>Curated questions</span></div>
+      <div><strong>8</strong><span>Programming topics</span></div>
+      <div><strong>∞</strong><span>Ways to improve</span></div>
+    </section>
+    <section className="feature-section">
+      <p className="eyebrow">BUILT FOR MOMENTUM</p>
+      <h2>Everything you need to<br /><span>keep moving forward.</span></h2>
+      <div className="feature-grid">
+        <article><span className="feature-icon">◈</span><h3>Practice with purpose</h3><p>Short, focused quizzes built around the concepts developers use every day.</p></article>
+        <article><span className="feature-icon">↗</span><h3>Learn from every answer</h3><p>Understand why an answer is correct with explanations that make ideas stick.</p></article>
+        <article><span className="feature-icon">✦</span><h3>See your progress</h3><p>Track attempts, celebrate wins, and find the topics worth another look.</p></article>
+      </div>
+    </section>
+    <footer className="site-footer"><span>CodeQuizzer © {new Date().getFullYear()}</span><span>Built for curious developers.</span></footer>
+  </>
+);
 
 export default Home;

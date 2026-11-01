@@ -196,6 +196,21 @@ npm run dev
 
 ## API Documentation
 
+The API uses JSON responses and `Authorization: Bearer <token>` for protected
+requests. The backend refuses to start unless `MONGODB_URI` and `JWT_SECRET`
+are configured.
+
+| Method | Endpoint | Access | Purpose |
+| --- | --- | --- | --- |
+| GET | `/api/quizzes` | Public | List quiz metadata |
+| POST | `/api/auth/register` | Public | Create an account |
+| POST | `/api/auth/login` | Public | Return a seven-day JWT |
+| GET | `/api/quizzes/:id` | Authenticated | Load a quiz without answers |
+| POST | `/api/quizzes/:id/submit` | Authenticated | Score a complete quiz |
+| GET | `/api/profile` | Authenticated | Load profile and history |
+| PUT | `/api/profile` | Authenticated | Update profile |
+| GET | `/api/leaderboard` | Public | Return the top ten users |
+
 ### Authentication Routes
 
 #### Register User
@@ -416,13 +431,13 @@ npm run dev
     [
       {
         "username": "topuser1",
-        "averagePercentage": "95.50",
-        "numQuizzes": 20
+        "averagePercentage": 95.5,
+        "quizzesTaken": 20
       },
       {
         "username": "topuser2",
-        "averagePercentage": "90.75",
-        "numQuizzes": 15
+        "averagePercentage": 90.75,
+        "quizzesTaken": 15
       }
       // ... up to top 10 users
     ]

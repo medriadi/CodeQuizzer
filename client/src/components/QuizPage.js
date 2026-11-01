@@ -1,12 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
-import { AuthContext } from '../context/AuthContext';
 
 const QuizPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { auth } = useContext(AuthContext);
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
