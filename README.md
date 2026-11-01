@@ -90,3 +90,14 @@ React 18, React Router, Axios, CSS, and Bootstrap utilities on the client. Expre
 Created by Mohamed Riadi as an ALX portfolio project.
 
 The backend readiness endpoint is `/healthz`. It returns 200 only while MongoDB is connected, and 503 otherwise. Use it as Render’s Health Check Path. The client allows up to 75 seconds for requests to accommodate free-service cold starts; it never automatically retries writes. Quiz drafts are kept in session storage for the current account and tab, and each submission includes an ID so retrying a lost response does not add another attempt.
+
+## Optional community content
+
+```sh
+npm run seed:community --prefix server
+npm run seed:community --prefix server -- --apply
+```
+
+The first command validates 96 additional questions, 12 quizzes, and 20 labeled demo learners without connecting to a database. The second inserts them into the configured database using deterministic IDs and insert-only upserts; rerunning it does not duplicate or overwrite records. Existing accounts and quiz history remain intact.
+
+Demo learners use reserved `example.invalid` email addresses and random, discarded passwords. They cannot sign in, are marked `isDemo: true`, and their simulated history is labeled on the leaderboard. They are sample content, not real community activity.

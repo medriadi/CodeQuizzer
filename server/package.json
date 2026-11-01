@@ -6,7 +6,8 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "node --test",
-    "seed": "node seeder.js"
+    "seed": "node seeder.js",
+    "seed:community": "node seed-community.js"
   },
   "keywords": [],
   "author": "",

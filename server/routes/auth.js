@@ -62,7 +62,11 @@ router.post("/login", [...credentials, validate], async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email }).select(
       "+password",
     );
-    if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
+    if (
+      !user ||
+      user.isDemo ||
+      !(await bcrypt.compare(req.body.password, user.password))
+    ) {
       return res.status(401).json({ msg: "Invalid email or password" });
     }
     return res.json({ token: tokenFor(user) });

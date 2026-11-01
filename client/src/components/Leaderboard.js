@@ -57,6 +57,11 @@ export default function Leaderboard() {
           quizzes.
         </p>
       </div>
+      {rows.some((row) => row.isDemo) && (
+        <p className="demo-notice">
+          Demo learners are sample profiles with simulated quiz history.
+        </p>
+      )}
       <div className="leaderboard">
         {rows.length === 0 ? (
           <div className="empty-state">
@@ -76,7 +81,11 @@ export default function Leaderboard() {
               </span>
               <span className="leader-name">
                 {row.username}
-                {index === 0 && <em>Top performer</em>}
+                {row.isDemo ? (
+                  <em>Demo learner · sample scores</em>
+                ) : (
+                  index === 0 && <em>Top performer</em>
+                )}
               </span>
               <strong aria-label={`${row.averagePercentage} percent accuracy`}>
                 {row.averagePercentage}%

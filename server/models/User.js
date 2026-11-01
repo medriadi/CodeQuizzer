@@ -38,6 +38,7 @@ const UserSchema = new mongoose.Schema(
       match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
     },
     password: { type: String, required: true, minlength: 6, select: false },
+    isDemo: { type: Boolean, default: false },
     quizAttempts: { type: [AttemptSchema], default: [] },
   },
   { timestamps: true },

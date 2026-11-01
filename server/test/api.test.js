@@ -236,3 +236,39 @@ test("unapproved origins are rejected without a server error", async () => {
   });
   assert.equal(response.status, 403);
 });
+
+test("demo accounts cannot sign in", async () => {
+  mock.method(User, "findOne", () => ({
+    select: async () => ({ isDemo: true, password: "not-used" }),
+  }));
+  const response = await request("/api/auth/login", {
+    body: { email: "demo@example.com", password: "some-password" },
+    token: null,
+  });
+  assert.equal(response.status, 401);
+  assert.equal((await response.json()).token, undefined);
+});
+
+test("leaderboard identifies simulated learners separately from real users", async () => {
+  mock.method(User, "find", () => ({
+    select() {
+      return this;
+    },
+    lean: async () => [
+      { username: "RealLearner", quizAttempts: [{ score: 7, total: 8 }] },
+      {
+        username: "DemoLearner",
+        isDemo: true,
+        quizAttempts: [{ score: 6, total: 8 }],
+      },
+    ],
+  }));
+  const response = await request("/api/leaderboard", { token: null });
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.find((row) => row.username === "DemoLearner").isDemo, true);
+  assert.equal(
+    data.find((row) => row.username === "RealLearner").isDemo,
+    false,
+  );
+});

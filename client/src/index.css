@@ -1750,3 +1750,12 @@ select {
   top: 12px;
   color: white;
 }
+.demo-notice {
+  padding: 12px 16px;
+  margin: 0 0 20px;
+  border-radius: 6px;
+  background: var(--mint);
+  color: #655582;
+  font-size: 12px;
+  line-height: 1.6;
+}
